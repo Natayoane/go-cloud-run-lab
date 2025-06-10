@@ -1,0 +1,11 @@
+### Get temperature by CEP
+GET http://localhost:8080/temperature?cep=89010-904
+
+### Get temperature with invalid CEP format
+GET http://localhost:8080/temperature?cep=123
+
+### Get temperature with non-existent CEP
+GET http://localhost:8080/temperature?cep=99999-999
+
+### Get temperature without CEP
+GET http://localhost:8080/temperature 
