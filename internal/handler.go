@@ -27,22 +27,22 @@ func HandleTemperatureRequest(config configs.Config) http.HandlerFunc {
 		}
 		ctx, cancel := context.WithTimeout(r.Context(), 10*time.Second)
 		defer cancel()
-		
+
 		viaCepData, err := GetViaCepAPI(ctx, cep)
-		if err != nil {
+		if err != nil || viaCepData.Localidade == "" || viaCepData.Uf == "" {
 			http.Error(w, "can not find zipcode", http.StatusNotFound)
 			return
 		}
-		
+
 		geoData, err := GetCoordinates(ctx, viaCepData.Localidade, viaCepData.Uf, config.OpenWeatherMapAPIKey)
 		if err != nil {
 			log.Printf("Error getting coordinates: %v", err)
 			http.Error(w, "Error getting coordinates", http.StatusInternalServerError)
 			return
 		}
-		
+
 		log.Printf("Using coordinates - Latitude: %f, Longitude: %f", geoData.Lat, geoData.Lon)
-		
+
 		weatherData, err := GetWeatherAPI(ctx, geoData.Lat, geoData.Lon, config.OpenWeatherMapAPIKey)
 		if err != nil {
 			log.Printf("Error in GetWeatherAPI: %v", err)
@@ -53,4 +53,4 @@ func HandleTemperatureRequest(config configs.Config) http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(temperature)
 	}
-} 
+}
